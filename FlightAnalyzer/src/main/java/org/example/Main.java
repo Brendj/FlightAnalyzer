@@ -22,13 +22,15 @@ public class Main {
             Map<String, LocalTime> minTimeFlightCorp = new HashMap<>();
 
             for (Flight ticket : ticketList) {
-                prices.add((double) ticket.getPrice());
-                if (ticket.getDepartureDate().equals(ticket.getArrivalDate())) {
-                    if ((minTimeFlightCorp.get(ticket.getCarrier()) == null) ||
-                            compareLocalTimes(
-                                    getFlightDuration(
-                                            ticket.getDepartureTime(), ticket.getArrivalTime()), minTimeFlightCorp.get(ticket.getCarrier()))) {
-                        minTimeFlightCorp.put(ticket.getCarrier(), getFlightDuration(ticket.getDepartureTime(), ticket.getArrivalTime()));
+                if (ticket.getOriginName().equals("Владивосток") && ticket.getDestinationName().equals("Тель-Авив")) {
+                    prices.add((double) ticket.getPrice());
+                    if (ticket.getDepartureDate().equals(ticket.getArrivalDate())) {
+                        if ((minTimeFlightCorp.get(ticket.getCarrier()) == null) ||
+                                compareLocalTimes(
+                                        getFlightDuration(
+                                                ticket.getDepartureTime(), ticket.getArrivalTime()), minTimeFlightCorp.get(ticket.getCarrier()))) {
+                            minTimeFlightCorp.put(ticket.getCarrier(), getFlightDuration(ticket.getDepartureTime(), ticket.getArrivalTime()));
+                        }
                     }
                 }
             }
