@@ -6,9 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,35 +17,46 @@ public class Main {
             Tickets tickets = mapper.readValue(new File("tickets.json"), Tickets.class);
 
             List<Flight> ticketList = tickets.getTickets();
-            LocalTime minTime = ticketList.get(0).getDepartureTime();
             List<Double> prices = new ArrayList<>();
 
+            Map<String, LocalTime> minTimeFlightCorp = new HashMap<>();
+
             for (Flight ticket : ticketList) {
-                prices.add((double) ticket.getPrice());
-                if (ticket.getDepartureDate().equals(ticket.getArrivalDate())) {
-                    if (getFlightDuration(ticket.getDepartureTime(), ticket.getArrivalTime()).isBefore(minTime)) {
-                        minTime = getFlightDuration(ticket.getDepartureTime(), ticket.getArrivalTime());
+                if (ticket.getOriginName().equals("Владивосток") && ticket.getDestinationName().equals("Тель-Авив")) {
+                    prices.add((double) ticket.getPrice());
+                    if (ticket.getDepartureDate().equals(ticket.getArrivalDate())) {
+                        if ((minTimeFlightCorp.get(ticket.getCarrier()) == null) ||
+                                compareLocalTimes(
+                                        getFlightDuration(
+                                                ticket.getDepartureTime(), ticket.getArrivalTime()), minTimeFlightCorp.get(ticket.getCarrier()))) {
+                            minTimeFlightCorp.put(ticket.getCarrier(), getFlightDuration(ticket.getDepartureTime(), ticket.getArrivalTime()));
+                        }
                     }
                 }
             }
 
-            double averagePrice = prices.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-
-            Collections.sort(prices);
-            double medianPrice;
-            int size = prices.size();
-            if (size % 2 == 0) {
-                medianPrice = (prices.get(size / 2 - 1) + prices.get(size / 2)) / 2;
-            } else {
-                medianPrice = prices.get(size / 2);
+            for (Map.Entry<String, LocalTime> entry : minTimeFlightCorp.entrySet()) {
+                System.out.println("Транспортная компания: " + entry.getKey() + ", Минимальное время перелета: " + entry.getValue());
             }
 
-            double difference = averagePrice - medianPrice;
+            double average = calculateAverage(prices);
+            System.out.println("Средняя цена: " + average);
 
-            System.out.println("Минимальное время полета: " + minTime);
+            double median = calculateMedian(prices);
+            System.out.println("Медиана: " + median);
+
+            double difference = average - median;
             System.out.println("Разница между средней ценой и медианой: " + difference);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static boolean compareLocalTimes(LocalTime time1, LocalTime time2) {
+        if (time1.compareTo(time2) <= 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -56,5 +65,25 @@ public class Main {
         long hours = duration.toHours();
         long minutes = duration.toMinutes() % 60;
         return LocalTime.of((int) hours, (int) minutes);
+    }
+
+    public static double calculateAverage(List<Double> prices) {
+        double sum = 0.0;
+        for (double price : prices) {
+            sum += price;
+        }
+        return sum / prices.size();
+    }
+
+    public static double calculateMedian(List<Double> prices) {
+        Collections.sort(prices);
+
+        int length = prices.size();
+
+        if (length % 2 == 0) {
+            return (prices.get(length / 2 - 1) + prices.get(length / 2)) / 2.0;
+        } else {
+            return prices.get(length / 2);
+        }
     }
 }
