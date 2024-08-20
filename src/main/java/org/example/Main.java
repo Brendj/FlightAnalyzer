@@ -39,12 +39,12 @@ public class Main {
             }
 
             for (Map.Entry<String, LocalDateTime> entry : minTimeFlightCorp.entrySet()) {
-                if (entry.getValue().getYear() == 0000) {
+                if (entry.getValue().getDayOfMonth() == 1 && entry.getValue().getDayOfMonth() == 1) {
                     System.out.println("Транспортная компания: " + entry.getKey() +
                             ", Минимальное время перелета: " + LocalTime.of(entry.getValue().getHour(), entry.getValue().getMinute()));
                 } else {
                     System.out.println("Транспортная компания: " + entry.getKey() +
-                            ", Минимальное время перелета: " + entry.getValue().getDayOfMonth() + " день " + entry.getValue().getHour() + " часов " + entry.getValue().getMinute() + " минут");
+                            ", Минимальное время перелета: " + entry.getValue().getDayOfMonth() + " дня " + entry.getValue().getHour() + " часов " + entry.getValue().getMinute() + " минут");
                 }
             }
 
